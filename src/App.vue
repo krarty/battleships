@@ -36,10 +36,10 @@
 
                 <div class="w-100 d-flex justify-content-between align-items-center pb-4">
                     <div>
-                        <button class="nav-button" title="Back" @click="back" :disabled="hindex == history.length">
+                        <button class="nav-button" title="Back" @click="back" :disabled="+hindex === +history.length">
                             <span class="mdi mdi-arrow-u-left-top-bold"></span>
                         </button>
-                        <button class="nav-button" title="Forward" @click="forward" :disabled="hindex == 0">
+                        <button class="nav-button" title="Forward" @click="forward" :disabled="+hindex === 0">
                             <span class="mdi mdi-arrow-u-right-top-bold"></span>
                         </button>
                     </div>
@@ -189,17 +189,17 @@ export default {
 
             if(!visible) {
                 
-                return Math.ceil(+v % this.boardWidth) == 1                  || 
-                       Math.ceil(+v / this.boardWidth) == 1                  ||
-                       Math.ceil(+v % this.boardWidth) == 0                  || 
-                       Math.ceil(+v / this.boardWidth) == this.boardHeight
+                return Math.ceil(+v % this.boardWidth) === 1                  ||
+                       Math.ceil(+v / this.boardWidth) === 1                  ||
+                       Math.ceil(+v % this.boardWidth) === 0                  ||
+                       Math.ceil(+v / this.boardWidth) === this.boardHeight
 
             } else {
                 
-                return +v > 1                                                &&
-                       Math.ceil(+v % this.boardWidth) != 0                  &&
-                       Math.ceil(+v / this.boardWidth) != this.boardHeight   &&
-                      (Math.ceil(+v % this.boardWidth) == 1 || Math.ceil(v / this.boardWidth) == 1)
+                return +v > 1                                                    &&
+                       Math.ceil(+v % this.boardWidth) !== 0                  &&
+                       Math.ceil(+v / this.boardWidth) !== this.boardHeight   &&
+                      (Math.ceil(+v % this.boardWidth) === 1 || Math.ceil(v / this.boardWidth) === 1)
                        
 
             }
@@ -209,24 +209,24 @@ export default {
             return this.shippedPlaces.includes(v);
         },
 
-        satisfied(v, exceded=false) {
+        satisfied(v, exceeded=false) {
 
-            if(Math.ceil(v % this.boardWidth) == 1) {
+            if(Math.ceil(v % this.boardWidth) === 1) {
 
-                if(exceded)
-                    return this.constraints[v] >= [...this.shippedPlaces.filter(i => Math.ceil(i / this.boardWidth) == Math.ceil(v / this.boardWidth))].length
+                if(exceeded)
+                    return this.constraints[v] >= [...this.shippedPlaces.filter(i => Math.ceil(i / this.boardWidth) === Math.ceil(v / this.boardWidth))].length
                 else
-                    return this.constraints[v] == [...this.shippedPlaces.filter(i => Math.ceil(i / this.boardWidth) == Math.ceil(v / this.boardWidth))].length
+                    return this.constraints[v] === [...this.shippedPlaces.filter(i => Math.ceil(i / this.boardWidth) === Math.ceil(v / this.boardWidth))].length
 
 
             }
 
-            if(Math.ceil(v / this.boardWidth) == 1) {
+            if(Math.ceil(v / this.boardWidth) === 1) {
 
-                if(exceded)
-                    return this.constraints[v] >= [...this.shippedPlaces.filter(i => Math.ceil(i % this.boardWidth) == Math.ceil(v % this.boardWidth))].length
+                if(exceeded)
+                    return this.constraints[v] >= [...this.shippedPlaces.filter(i => Math.ceil(i % this.boardWidth) === Math.ceil(v % this.boardWidth))].length
                 else
-                    return this.constraints[v] == [...this.shippedPlaces.filter(i => Math.ceil(i % this.boardWidth) == Math.ceil(v % this.boardWidth))].length
+                    return this.constraints[v] === [...this.shippedPlaces.filter(i => Math.ceil(i % this.boardWidth) === Math.ceil(v % this.boardWidth))].length
 
             }
 
@@ -239,25 +239,22 @@ export default {
 
             return !this.shippedPlaces.every(i => {
                
-                if(i == v)
+                if(i === v)
                     return true
                 
                 if(visited.includes(i))
                     return true
 
-                if(Math.abs(i - v) == 1)
+                if(Math.abs(i - v) === 1)
                     return !this.wrong(i, [...visited, i])
 
-                if(Math.abs(i - v) == this.boardWidth)
+                if(Math.abs(i - v) === this.boardWidth)
                     return !this.wrong(i, [...visited, i])
 
-                if(Math.abs(i - v) == this.boardWidth - 1)
+                if(Math.abs(i - v) === this.boardWidth - 1)
                     return false
 
-                if(Math.abs(i - v) == this.boardWidth + 1)
-                    return false
-
-                return true
+                return Math.abs(i - v) !== this.boardWidth + 1;
 
             })
 
@@ -313,7 +310,7 @@ export default {
             if(empty < 3)
                 return ''
 
-            if(empty == 4)
+            if(empty === 4)
                 return 'C'
 
             return direction
@@ -328,11 +325,11 @@ export default {
                 'battleship-square battleship-square--const'     :  this.constraint(v),
                 'unsatisfied'                                    :  this.constraint(v) && !this.satisfied(v, true),
                 'satisfied'                                      :  this.constraint(v) &&  this.satisfied(v),
-                'battleship-square battleship-square-circle'     :  this.prow(v) == 'C',
-                'battleship-square battleship-square-left'       :  this.prow(v) == 'L',
-                'battleship-square battleship-square-right'      :  this.prow(v) == 'R',
-                'battleship-square battleship-square-up'         :  this.prow(v) == 'U',
-                'battleship-square battleship-square-down'       :  this.prow(v) == 'D',
+                'battleship-square battleship-square-circle'     :  this.prow(v) === 'C',
+                'battleship-square battleship-square-left'       :  this.prow(v) === 'L',
+                'battleship-square battleship-square-right'      :  this.prow(v) === 'R',
+                'battleship-square battleship-square-up'         :  this.prow(v) === 'U',
+                'battleship-square battleship-square-down'       :  this.prow(v) === 'D',
             }
         },
 
