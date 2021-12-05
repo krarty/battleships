@@ -1,33 +1,44 @@
 <template>
   
-    <div>
+    <div class="app">
 
-        <br>
-        <br>
-        <br>
 
-        <div class="battleship-title">
-            <h1 class="battleship-title__content">BATTLESHIPS</h1>
+        <div class="my-5">
+
+            <div class="battleship-title">
+                <h1 class="battleship-title-content">BATTLESHIPS</h1>
+            </div>
+
+            <div v-if="state === 'running'" class="message-flex">
+                <h3 class="message-flex-text">Place your Ships</h3>
+            </div>
+
+            <div v-if="state === 'init'" class="message-flex">
+                <h3 class="message-flex-text">Select your game difficulty</h3>
+            </div>
+
+             <div v-if="state === 'loading'" class="message-flex">
+                <h3 class="message-flex-text">Loading...</h3>
+            </div>
+
+             <div v-if="state === 'error'" class="message-flex">
+                <h3 class="message-flex-text error">There was an error...</h3>
+            </div>
+
         </div>
-
-        <div class="message-flex">
-            <h3 class="message-flex__text">Place your Ships</h3>
-        </div>
-
-        <br>
-        <br>
-        <br>
         
-        <div class="battleship-playing-field">
+
+
+        <div v-if="state === 'running'" class="battleship-playing-field">
 
             <!-- <div class="placement-wrapper">
 
                 <div class="fleet-button-wrapper" :style="fleetGrid">
-                    <button v-for="(v, k) in placeableShips" :key="k" class="fleet-button-wrapper__button" :style="`grid-column: 1 / span ${v.size};`" :data-index="k" :title="v.name"></button>
+                    <button v-for="(v, k) in placeableShips" :key="k" class="fleet-button-wrapper-ship" :style="`grid-column: 1 / span ${v.size};`" :data-index="k" :title="v.name"></button>
                 </div>
 
-                <button class="placement-wrapper__rotate-button">DONE</button>
-                <button class="placement-wrapper__rotate-button">RESET</button>
+                <button class="placement-wrapper-button">DONE</button>
+                <button class="placement-wrapper-button">RESET</button>
 
             </div> -->
 
@@ -44,7 +55,7 @@
                         </button>
                     </div>
                     <div>
-                        <h2 class="battleship-player-field__title">{{time}}</h2>
+                        <h2 class="battleship-player-field-title">{{time}}</h2>
                     </div>
                     <div>
                         <button class="nav-button" title="Hint">
@@ -57,7 +68,7 @@
                 </div>
 
                 
-                <div class="battleship-player-field__battleship-grid" :style="boardGrid">
+                <div class="battleship-player-field-battleship-grid" :style="boardGrid">
                     <div v-for="v in boardSize" :key="v" @click="fire(v)" 
                         :data-row="Math.ceil(v / boardWidth)" 
                         :data-col="Math.ceil(v % boardWidth)" 
@@ -69,13 +80,34 @@
                 </div>
 
 
-                <div class="w-100 d-flex justify-content-center">
+                <div class="w-100 d-flex justify-content-center mb-5">
                     <button class="nav-button foo-button mx-3" title="Reset" @click="reset">
                         <span>Reset</span>
                     </button>
                     <button class="nav-button foo-button mx-3" title="Done" @click="done">
                         <span>Done</span>
                     </button>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div v-if="state === 'init'">
+
+            <div class="w-100 text-center">
+
+                <div class="my-5">
+                    <select v-model="difficulty" class="battleship-difficulty-select">
+                        <option value="6x6">Easy</option>
+                        <option value="8x8">Medium</option>
+                        <option value="10x10">Hard</option>
+                        <option value="random">Random</option>
+                    </select>
+                </div>
+
+                <div class="my-5">
+                    <button class="nav-button" @click="start">Start</button>
                 </div>
 
             </div>
@@ -94,7 +126,7 @@
             <div class="modal-help-body">
 
                 <div class="battleship-title py-3">
-                    <h1 class="battleship-title__content">RULES</h1>
+                    <h1 class="battleship-title-content">RULES</h1>
                 </div>
 
                 <p>
@@ -118,11 +150,15 @@
 
 <script>
 
+import '@/assets/css/style.css'
+import AI from '@/assets/js/ai.js'
+
 export default {
     
     data() {
         return {
 
+            state: 'init',
             stopwatch: 0,
 
             boardWidth: 8 + 2,
@@ -153,6 +189,8 @@ export default {
                     name: 'Destroyer',
                 },
             ],
+
+            difficulty: 'random',
 
         }
     },
@@ -319,10 +357,10 @@ export default {
 
         boardChunk(v) {
             return { 
-                'battleship-square battleship-square--empty'     : !this.constraint(v) && !this.shipped(v),
-                'battleship-square battleship-square--ship'      : !this.constraint(v) &&  this.shipped(v) && !this.wrong(v),
-                'battleship-square battleship-square--ship-hit'  : !this.constraint(v) &&  this.shipped(v) &&  this.wrong(v),
-                'battleship-square battleship-square--const'     :  this.constraint(v),
+                'battleship-square battleship-square-empty'     : !this.constraint(v) && !this.shipped(v),
+                'battleship-square battleship-square-ship'      : !this.constraint(v) &&  this.shipped(v) && !this.wrong(v),
+                'battleship-square battleship-square-ship-hit'  : !this.constraint(v) &&  this.shipped(v) &&  this.wrong(v),
+                'battleship-square battleship-square-const'     :  this.constraint(v),
                 'unsatisfied'                                    :  this.constraint(v) && !this.satisfied(v, true),
                 'satisfied'                                      :  this.constraint(v) &&  this.satisfied(v),
                 'battleship-square battleship-square-circle'     :  this.prow(v) === 'C',
@@ -357,6 +395,42 @@ export default {
 
         done() {
             
+        },
+
+        start() {
+
+            this.state = 'loading'
+
+            AI('localhost', 8765,
+
+                (ws) => {
+
+                    ws.send(JSON.stringify({
+                        type: 'init',
+                        difficulty: this.difficulty,
+                    }))
+
+                },
+
+                (ws, msg) => {
+
+                    switch(msg.type) {
+                        case 'init':
+                            this.state = 'running'
+                            break
+                        case 'error':
+                            this.state = 'error'
+                            break
+                    }
+
+                },
+
+                () => {
+                    this.state = 'error'
+                },
+
+            )
+
         }
 
     },
