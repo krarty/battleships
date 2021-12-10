@@ -17,8 +17,11 @@
                 <h3 class="message-flex-text">Select your game difficulty</h3>
             </div>
 
-             <div v-if="state === 'loading'" class="message-flex">
-                <h3 class="message-flex-text">Loading...</h3>
+            <div v-if="state === 'loading'" class='tetrominos my-5'>
+                <div class='tetromino box1'></div>
+                <div class='tetromino box2'></div>
+                <div class='tetromino box3'></div>
+                <div class='tetromino box4'></div>
             </div>
 
              <div v-if="state === 'error'" class="message-flex">
@@ -30,51 +33,66 @@
 
 
         <div v-if="state === 'running'" class="battleship-playing-field">
+            
+             <div class="d-flex justify-content-between align-items-center pb-4">
+                <div class="mx-5 px-2">
+                    <button class="nav-button" title="Back" @click="back" :disabled="+hindex === +history.length">
+                        <span class="mdi mdi-arrow-u-left-top-bold"></span>
+                    </button>
+                    <button class="nav-button" title="Forward" @click="forward" :disabled="+hindex === 0">
+                        <span class="mdi mdi-arrow-u-right-top-bold"></span>
+                    </button>
+                </div>
+                <div class="mx-5 px-5">
+                    <h2 class="battleship-player-field-title">{{time}}</h2>
+                </div>
+                <div class="mx-5 px-2">
+                    <button class="nav-button" title="Hint">
+                        <span class="mdi mdi-lightbulb"></span>
+                    </button>
+                        <button class="nav-button" title="Help" @click="showHelp = true">
+                        <span class="mdi mdi-help"></span>
+                    </button>
+                </div>
+            </div>
 
-            <!-- <div class="placement-wrapper">
+        </div>
 
-                <div class="fleet-button-wrapper" :style="fleetGrid">
-                    <button v-for="(v, k) in placeableShips" :key="k" class="fleet-button-wrapper-ship" :style="`grid-column: 1 / span ${v.size};`" :data-index="k" :title="v.name"></button>
+
+        <div v-if="state === 'running'" class="battleship-playing-field">
+
+           
+            <div class="placement-wrapper">
+
+                <div class="fleet-button-wrapper">
+                    <div v-for="(v, k) of placeableShips" :key="k">
+                        <div v-if="v.size > 1" class="d-flex">
+                            <div class="fleet-ship battleship-square-left">X</div>
+                            <div v-for="(i, j) of (v.size - 2)" :key="j" class="fleet-ship">C</div>
+                            <div class="fleet-ship battleship-square-right">X</div>
+                        </div>
+                        <div v-else>
+                            <div class="fleet-ship battleship-square-circle">
+                                <span class="mdi mdi-sail-boat mdi-24px"></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <button class="placement-wrapper-button">DONE</button>
-                <button class="placement-wrapper-button">RESET</button>
-
-            </div> -->
+            </div>
 
             
             <div class="battleship-player-field">
 
-                <div class="w-100 d-flex justify-content-between align-items-center pb-4">
-                    <div>
-                        <button class="nav-button" title="Back" @click="back" :disabled="+hindex === +history.length">
-                            <span class="mdi mdi-arrow-u-left-top-bold"></span>
-                        </button>
-                        <button class="nav-button" title="Forward" @click="forward" :disabled="+hindex === 0">
-                            <span class="mdi mdi-arrow-u-right-top-bold"></span>
-                        </button>
-                    </div>
-                    <div>
-                        <h2 class="battleship-player-field-title">{{time}}</h2>
-                    </div>
-                    <div>
-                        <button class="nav-button" title="Hint">
-                            <span class="mdi mdi-lightbulb"></span>
-                        </button>
-                         <button class="nav-button" title="Help" @click="showHelp = true">
-                            <span class="mdi mdi-help"></span>
-                        </button>
-                    </div>
-                </div>
-
                 
                 <div class="battleship-player-field-battleship-grid" :style="boardGrid">
-                    <div v-for="v in boardSize" :key="v" @click="fire(v)" 
+                    <div v-for="v in boardSize" :key="v" @click="fire(v)" class="d-flex justify-content-center align-items-center"
                         :data-row="Math.ceil(v / boardWidth)" 
                         :data-col="Math.ceil(v % boardWidth)" 
                         :data-board="'player'" :class="boardChunk(+v)">
 
                         <span v-if="constraint(v, true)">{{constraints[v]}}</span>
+                        <span v-if="locked(v)" class="mdi mdi-lock mdi-24px text-muted"></span>
                         
                     </div>
                 </div>
@@ -165,32 +183,17 @@ export default {
             boardHeight: 8 + 2,
 
             shippedPlaces: [],
+            placeableShips: [],
             constraints: [],
+            lockedPlaces: [],
 
             history: [],
             hindex: 0,
 
             showHelp: false,
 
-            placeableShips: [
-                {
-                    size: 3,
-                    count: 1,
-                    name: 'Carrier',
-                },
-                {
-                    size: 2,
-                    count: 2,
-                    name: 'Cruiser',
-                },
-                                {
-                    size: 1,
-                    count: 3,
-                    name: 'Destroyer',
-                },
-            ],
 
-            difficulty: 'random',
+            difficulty: '6x6',
 
         }
     },
@@ -223,6 +226,10 @@ export default {
 
     methods: {
 
+        locked(v) {
+            return this.lockedPlaces.includes(v)
+        },
+
         constraint(v, visible=false) {
 
             if(!visible) {
@@ -234,7 +241,7 @@ export default {
 
             } else {
                 
-                return +v > 1                                                    &&
+                return +v > 1                                                 &&
                        Math.ceil(+v % this.boardWidth) !== 0                  &&
                        Math.ceil(+v / this.boardWidth) !== this.boardHeight   &&
                       (Math.ceil(+v % this.boardWidth) === 1 || Math.ceil(v / this.boardWidth) === 1)
@@ -300,7 +307,7 @@ export default {
 
         fire(v, pushHistory=true) {
 
-            if(!this.constraint(v)) {
+            if(!this.constraint(v) && !this.locked(v)) {
                 
                 if(pushHistory) {
                     this.history = [v, ...this.history.slice(this.hindex)]
@@ -387,7 +394,7 @@ export default {
 
 
         reset() {
-            this.shippedPlaces = []
+            this.shippedPlaces = this.shippedPlaces.filter(i => this.locked(i))
             this.hindex = 0
             this.history = []
             this.stopwatch = 0
@@ -395,6 +402,39 @@ export default {
 
         done() {
             
+        },
+
+        run(msg) {
+
+            this.boardWidth = msg.data.constraints.cols.length + 2
+            this.boardHeight = msg.data.constraints.rows.length + 2
+
+            this.constraints = new Array(this.boardWidth * this.boardHeight)
+            this.constraints = this.constraints.fill(0)
+
+            this.lockedPlaces = new Array(this.boardWidth * this.boardHeight)
+            this.lockedPlaces = this.lockedPlaces.fill(0)
+
+
+            console.log(msg)
+
+            msg.data.constraints.cols.forEach((e, i) => this.constraints[(i + 2)] = Number(e))
+            msg.data.constraints.rows.forEach((e, i) => this.constraints[(i + 1) * this.boardWidth + 1] = Number(e))
+
+            msg.data.hints.forEach(e => this.shippedPlaces.push(e[0] * this.boardWidth + e[1] + 1))
+            msg.data.hints.forEach(e => this.lockedPlaces.push(e[0] * this.boardWidth + e[1] + 1))
+
+
+            ;[...new Set(msg.data.ships)].forEach(i => {
+                this.placeableShips.push({
+                    size: i,
+                    count: msg.data.ships.filter(j => j === i).length
+                })
+            })
+
+
+            this.state = 'running'
+
         },
 
         start() {
@@ -415,8 +455,8 @@ export default {
                 (ws, msg) => {
 
                     switch(msg.type) {
-                        case 'init':
-                            this.state = 'running'
+                        case 'run':
+                            this.run(msg)
                             break
                         case 'error':
                             this.state = 'error'
