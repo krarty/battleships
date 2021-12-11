@@ -11,6 +11,11 @@
 }
 
 
+
+p {
+    margin-bottom: 0.5rem !important;
+}
+
 .app {
     max-width: 100vw;
     overflow-x: hidden;
@@ -31,7 +36,7 @@
     border: solid 4px black;
     background-color: #c5c5c5;
     cursor: pointer;
-    font-size: calc(1rem + .75vw);
+    font-size: calc(0.5rem + .75vw);
 }
   
 .nav-button:hover {
@@ -75,8 +80,12 @@
   }
   
 .battleship-title-content {
-    font-size: 2.5rem;
-  }
+    font-size: 2.25rem;
+}
+
+.battleship-title-modal {
+    font-size: 1.75rem;
+}
   
 .battleship-playing-field {
     min-width: 100%;
@@ -93,7 +102,7 @@
 }
 
 .battleship-player-field-title {
-    font-size: calc(1rem + .75vw);
+    font-size: calc(0.5rem + .65vw);
     padding: 1rem;
     background-color: rgb(255, 167, 3);
     border: solid 4px rgb(196, 128, 2);
@@ -110,22 +119,26 @@
     background-image: url('../img/sea.png');
     background-blend-mode: darken;
     background-size: 100%;
-;
 
 }
+  
   
 .battleship-square {
     cursor: pointer;
     transition: all 0.2s ease-in-out;
 }
-  
+.battleship-square:hover:not(.battleship-square-const):not(.battleship-square-ship):not(.battleship-square-ship-hit) {
+    background-color: rgba(157, 216, 102, .5);
+}
+
+
 .battleship-square-empty {
     background-color: transparent;
     border: solid 1px rgba(0, 0, 0, 0.25);
 }
   
 .battleship-square-const {
-    font-size: calc(.75rem + .75vw);
+    font-size: calc(.50rem + .75vw);
     background-color: white;
     border: solid 1px white;
     text-align: end;
@@ -143,11 +156,14 @@
     color: rgba(255, 0, 0, 0.75);
 }
   
+
 .battleship-square-ship {
+    content: '';
     background-color: #adb5bd;
     border: solid 1px #495057;
     animation: sea 1s infinite;
 }
+
   
 .battleship-square-empty-hit {
     background-color: #003049;
@@ -155,13 +171,27 @@
 }
   
 .battleship-square-ship-hit {
-    background-color: #d62828;
+    background-color: rgb(214, 40, 40);
     border: solid 1px #ac2020;
 }
   
-.battleship-square-ship-sunk {
-    background-color: #000814;
-    border: solid 1px #000814;
+
+.battleship-square-hints-add {
+    background-color: rgba(255, 167, 3, 0.75);
+    animation-duration: 1.5s;
+    animation-name: strobo;
+    animation-timing-function: ease-in-out;
+    animation-direction: normal;
+    animation-iteration-count: infinite;
+}
+
+.battleship-square-hints-rm {
+    background-color: rgba(214, 40, 40, 1);
+    animation-duration: 1.5s;
+    animation-name: strobo;
+    animation-timing-function: ease-in-out;
+    animation-direction: normal;
+    animation-iteration-count: infinite;
 }
     
 .battleship-square-circle {
@@ -189,50 +219,12 @@
 }
 
 
-.fleet-ship {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #adb5bd;
-    border: solid 1px #495057;
-    animation: sea 1s infinite;
-    width: 48px;
-    height: 48px;
-}
-
-
-
-.placement-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.battleship-goals {
+    background-color: rgba(197, 197, 197, 1);
+    border: solid 4px black;
     padding: 1rem;
-}
-
-.placement-wrapper-button {
-    font-family: 'Press Start 2P';
-    padding: 1rem;
-    border: solid 5px black;
-    background-color: #c5c5c5;
     margin: 1rem;
-}
-
-.fleet-button-wrapper {
-    display: grid;
-    width: max(10vw, 10vh);
-    height: max(10vw, 10vh);
-    margin: 1rem;
-}
-
-.fleet-button-wrapper-ship {
-    background-color: #ef1a1e;
-    border: none;
-    margin: 0.1rem;
-    border: solid 3px #ac2020;
-  }
-  
-.fleet-button-wrapper-ship:hover {
-    background-color: #660708;
+    margin-top: -2rem;
 }
 
 
@@ -248,10 +240,20 @@
 .message-flex-text {
     margin-top: 1rem;
     margin-bottom: 1rem;
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     min-height: 2rem;
     padding-left: 1rem;
     padding-right: 1rem;
+    animation-duration: 2s;
+    animation-name: pulse;
+    animation-timing-function: ease-in-out;
+    animation-direction: normal;
+    animation-iteration-count: infinite;
+}
+
+.animated-pulse {
+    box-sizing: border-box;
+    justify-content: center;
     animation-duration: 2s;
     animation-name: pulse;
     animation-timing-function: ease-in-out;
@@ -292,8 +294,8 @@
 @media (min-width: 501px) {
 
     .battleship-player-field-battleship-grid {
-        width: min(40vw, 65vh);
-        height: min(40vw, 65vh);
+        width: min(35vw, 60vh);
+        height: min(35vw, 60vh);
     }
   
     .battleship-playing-field {
@@ -329,7 +331,7 @@
     border: solid 5px black;
     padding: 2rem 2rem 5rem 2rem;
     line-height: 1.5rem;
-    animation: show 0.2s backwards;
+    animation-duration: 0.5s !important;
   }
   
 .modal-help .modal-help-body {
@@ -506,13 +508,13 @@
       background-position: 0% 0%;
     }
     100% {
-      background-position: 32% 16%;
+      backdrop-position: 32% 16%;
     }
 }
 
-@keyframes pulse {
+@keyframes strobo {
     0% {
-      opacity: 0;
+      opacity: 0.5;
     }
   
     30% {
@@ -524,6 +526,6 @@
     }
   
     100% {
-      opacity: 0;
+      opacity: 0.5;
     }
 }

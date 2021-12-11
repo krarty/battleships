@@ -1,16 +1,14 @@
 <template>
-  
+
     <div class="app">
 
-
-        <div class="my-5">
+        <div class="my-4">
 
             <div class="battleship-title">
-                <h1 class="battleship-title-content">BATTLESHIPS</h1>
-            </div>
-
-            <div v-if="state === 'running'" class="message-flex">
-                <h3 class="message-flex-text">Place your Ships</h3>
+                <h1 class="battleship-title-content" v-if="state === 'init'">BATTLESHIPS</h1>
+                <h5 class="battleship-title-content animate__animated animate__backInDown message-flex" v-if="state === 'running'">
+                    <span class="animated-pulse">BATTLESHIPS</span>
+                </h5>
             </div>
 
             <div v-if="state === 'init'" class="message-flex">
@@ -34,8 +32,11 @@
 
         <div v-if="state === 'running'" class="battleship-playing-field">
             
-             <div class="d-flex justify-content-between align-items-center pb-4">
-                <div class="mx-5 px-2">
+             <div class="d-flex justify-content-between align-items-baseline pb-4">
+                <div class="mx-5 px-2 animate__animated animate__backInLeft">
+                    <button class="nav-button mr-3" title="Reset" @click="reset">
+                        <span class="mdi mdi-delete"></span>
+                    </button>
                     <button class="nav-button" title="Back" @click="back" :disabled="+hindex === +history.length">
                         <span class="mdi mdi-arrow-u-left-top-bold"></span>
                     </button>
@@ -43,14 +44,17 @@
                         <span class="mdi mdi-arrow-u-right-top-bold"></span>
                     </button>
                 </div>
-                <div class="mx-5 px-5">
+                <div class="mx-5 px-5 animate__animated animate__zoomIn">
                     <h2 class="battleship-player-field-title">{{time}}</h2>
                 </div>
-                <div class="mx-5 px-2">
-                    <button class="nav-button" title="Hint">
+                <div class="mx-5 px-2 animate__animated animate__backInRight">
+                    <button class="nav-button" title="Done" @click="showDone = true">
+                        <span class="mdi mdi-check-bold"></span>
+                    </button>
+                    <button class="nav-button" title="Hint" @click="hint">
                         <span class="mdi mdi-lightbulb"></span>
                     </button>
-                        <button class="nav-button" title="Help" @click="showHelp = true">
+                    <button class="nav-button ml-3" title="Help" @click="showHelp = true">
                         <span class="mdi mdi-help"></span>
                     </button>
                 </div>
@@ -59,27 +63,7 @@
         </div>
 
 
-        <div v-if="state === 'running'" class="battleship-playing-field">
-
-           
-            <div class="placement-wrapper">
-
-                <div class="fleet-button-wrapper">
-                    <div v-for="(v, k) of placeableShips" :key="k">
-                        <div v-if="v.size > 1" class="d-flex">
-                            <div class="fleet-ship battleship-square-left">X</div>
-                            <div v-for="(i, j) of (v.size - 2)" :key="j" class="fleet-ship">C</div>
-                            <div class="fleet-ship battleship-square-right">X</div>
-                        </div>
-                        <div v-else>
-                            <div class="fleet-ship battleship-square-circle">
-                                <span class="mdi mdi-sail-boat mdi-24px"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+        <div v-if="state === 'running'" class="battleship-playing-field animate__animated animate__backInUp">
 
             
             <div class="battleship-player-field">
@@ -98,16 +82,19 @@
                 </div>
 
 
-                <div class="w-100 d-flex justify-content-center mb-5">
-                    <button class="nav-button foo-button mx-3" title="Reset" @click="reset">
-                        <span>Reset</span>
-                    </button>
-                    <button class="nav-button foo-button mx-3" title="Done" @click="done">
-                        <span>Done</span>
-                    </button>
+                <div class="battleship-goals">
+                
+                    <p v-for="(v, k) in placeableShips" :key="k" class="mt-2">
+                        <del  v-if="goal(v)" class="text-muted">{{k + 1}}) You have to place exactly {{v.count}} ships of size {{v.size}}</del>
+                        <span v-if="!goal(v)">{{k + 1}}) You have to place exactly {{v.count}} ships of size {{v.size}}</span>
+                    </p>
+
                 </div>
 
             </div>
+
+
+    
 
         </div>
 
@@ -133,7 +120,7 @@
         </div>
 
         
-        <div class="modal-help" v-show="showHelp">
+        <div class="modal-help animate__animated animate__zoomIn" v-show="showHelp">
 
             <div class="w-100 d-flex justify-content-end">
                 <button class="nav-button" @click="showHelp = false">
@@ -159,8 +146,62 @@
             </div>
 
         </div>
-    
 
+
+        <div class="modal-help animate__animated animate__zoomIn" v-show="showDone">
+
+            <div class="w-100 d-flex justify-content-end">
+                <button class="nav-button" @click="showDone = false">
+                    <span class="mdi mdi-close-thick"></span>
+                </button>
+            </div>
+
+            <div v-if="!errors && difference === 0" class="modal-help-body">
+
+                <div class="battleship-title py-3">
+                    <h1 class="battleship-title-modal">You Win!</h1>
+                </div>
+
+                <p class="text-center">
+
+                    <button class="nav-button" @click="reset">
+                        <span>Rematch</span>
+                    </button>
+                    <button class="nav-button" @click="reload">
+                        <span>Start menu</span>
+                    </button>
+
+                </p>
+
+            </div>
+
+            <div v-if="!errors && difference !== 0" class="modal-help-body">
+
+                <div class="battleship-title py-3">
+                    <h1 class="battleship-title-modal">You're almost done!</h1>
+                </div>
+
+                <p class="text-center">
+                    You have to solve the puzzle! So far good, {{difference}} to go!
+                </p>
+
+            </div>
+
+            <div v-if="errors" class="modal-help-body">
+
+                <div class="battleship-title py-3">
+                    <h1 class="battleship-title-modal">Try again!</h1>
+                </div>
+
+                <p class="text-center">
+                    You have errors in your solution!
+                </p>
+
+            </div>
+
+        </div>
+    
+       
     </div>
 
 </template>
@@ -169,6 +210,7 @@
 <script>
 
 import '@/assets/css/style.css'
+import 'animate.css'
 import AI from '@/assets/js/ai.js'
 
 export default {
@@ -187,11 +229,14 @@ export default {
             constraints: [],
             lockedPlaces: [],
 
+            solution: [],
+            hints: [],
+
             history: [],
             hindex: 0,
 
             showHelp: false,
-
+            showDone: false,
 
             difficulty: '6x6',
 
@@ -201,7 +246,7 @@ export default {
     computed: {
 
         boardSize() {
-            return parseInt(this.boardWidth * this.boardHeight);
+            return parseInt(this.boardWidth * this.boardHeight)
         },
 
         boardGrid() {
@@ -211,16 +256,26 @@ export default {
             }
         },
 
-        fleetGrid() {
-            return {
-                'grid-template-columns' : `repeat(${4}, 1fr)`,
-                'grid-template-rows'    : `repeat(${this.placeableShips.length}, 1fr)`,
-            }
+        time() {
+            return `${(String(Math.floor(this.stopwatch / 60)).padStart(2, 0))}:${(String(Math.floor(this.stopwatch % 60)).padStart(2, 0))}`
         },
 
-        time() {
-            return `${(String(Math.floor(this.stopwatch / 60)).padStart(2, 0))}:${(String(Math.floor(this.stopwatch % 60)).padStart(2, 0))}`;
-        }
+        difference() {
+            return Math.abs(this.shippedPlaces.length - this.solution.reduce((a, b) => a + b, 0))
+        },
+
+        errors() {
+            
+            for(let i = 0; i < this.boardSize; i++) {
+
+                if(this.solution[i] === 0 && this.shipped(i))
+                    return true
+
+            }
+
+            return false
+
+        },
 
     },
 
@@ -228,6 +283,59 @@ export default {
 
         locked(v) {
             return this.lockedPlaces.includes(v)
+        },
+
+        hinted(v) {
+            return this.hints[v] === 1
+        },
+
+        hint() {
+
+            const candidates = this.solution.map((e, i) => (e === 1 && !this.shipped(i)) || (e === 0 && this.shipped(i)) ? i : 0).filter(e => e !== 0)
+
+            if(candidates.length === 0)
+                return
+
+            
+            if(this.shippedPlaces.length === 0) {
+
+                if(!this.hints.includes(candidates[0]))
+                    this.hints.push(candidates[0])
+
+            } else {
+
+                const distances = []
+                
+                for(const s of this.shippedPlaces) {
+
+                    const sr = Math.floor(s / this.boardWidth)
+                    const sc = Math.floor(s % this.boardWidth)
+
+                    for(const c of candidates) {
+
+                        const cr = Math.floor(c / this.boardWidth)
+                        const cc = Math.floor(c % this.boardWidth)
+                        
+                        distances.push({
+                            candidate: c,
+                            distance: Math.sqrt(Math.pow(sr - cr, 2) + Math.pow(sc - cc, 2))
+                        })
+
+                    }
+
+                }
+                
+
+                distances.sort((a, b) => a.distance - b.distance)
+                
+                this.hints.push(distances[0].candidate)
+
+
+            }
+
+            
+            
+
         },
 
         constraint(v, visible=false) {
@@ -252,6 +360,106 @@ export default {
 
         shipped(v) {
             return this.shippedPlaces.includes(v);
+        },
+
+        goal(v) {
+
+            if(v.size === 1) {
+
+                return this.shippedPlaces.filter(i => {
+
+                    return !(
+                        this.shippedPlaces.includes(i + 1)               ||
+                        this.shippedPlaces.includes(i - 1)               ||
+                        this.shippedPlaces.includes(i + this.boardWidth) ||
+                        this.shippedPlaces.includes(i - this.boardWidth)
+                    )
+
+                }).length === v.count
+
+            } else {
+
+                const q = []
+
+                return this.shippedPlaces.sort((a, b) => a - b).filter(i => {
+
+                    if(q.includes(i))
+                        return false
+
+
+                    const searchIn = (i) => {
+
+                        if(!this.shippedPlaces.includes(i))
+                            return false
+
+                        q.push(i)
+                        return true
+
+                    }
+
+
+                    const searchRight = () => {
+                        
+                        for(let start = i; start <= i + v.size - 1; start++) {
+
+                            if(!searchIn(start))
+                                return false
+                        
+                        }
+
+                        return !searchIn(i + v.size)
+
+                    }
+
+                    const searchLeft = () => {
+                        
+                        for(let start = i; start >= i - v.size + 1; start--) {
+
+                            if(!searchIn(start))
+                                return false
+                        
+                        }
+
+                        return !searchIn(i - v.size)
+                        
+                    }
+
+
+                    const searchUp = () => {
+                        
+                        for(let start = i; start >= i - (v.size + 1) * this.boardWidth; start -= this.boardWidth) {
+
+                            if(!searchIn(start))
+                                return false
+                        
+                        }
+
+                        return !searchIn(i - v.size * this.boardWidth)
+                        
+                    }
+
+
+                    const searchDown = () => {
+                        
+                        for(let start = i; start <= i + (v.size - 1) * this.boardWidth; start += this.boardWidth) {
+
+                            if(!searchIn(start))
+                                return false
+                        
+                        }
+
+                        return !searchIn(i + v.size * this.boardWidth)
+                        
+                    }
+
+
+                    if(searchRight() || searchLeft() || searchUp() || searchDown())
+                        return true
+
+                }).length === v.count
+
+            }
+            
         },
 
         satisfied(v, exceeded=false) {
@@ -364,10 +572,10 @@ export default {
 
         boardChunk(v) {
             return { 
-                'battleship-square battleship-square-empty'     : !this.constraint(v) && !this.shipped(v),
-                'battleship-square battleship-square-ship'      : !this.constraint(v) &&  this.shipped(v) && !this.wrong(v),
-                'battleship-square battleship-square-ship-hit'  : !this.constraint(v) &&  this.shipped(v) &&  this.wrong(v),
-                'battleship-square battleship-square-const'     :  this.constraint(v),
+                'battleship-square battleship-square-empty'      : !this.constraint(v) && !this.shipped(v),
+                'battleship-square battleship-square-ship'       : !this.constraint(v) &&  this.shipped(v) && !this.wrong(v),
+                'battleship-square battleship-square-ship-hit'   : !this.constraint(v) &&  this.shipped(v) &&  this.wrong(v),
+                'battleship-square battleship-square-const'      :  this.constraint(v),
                 'unsatisfied'                                    :  this.constraint(v) && !this.satisfied(v, true),
                 'satisfied'                                      :  this.constraint(v) &&  this.satisfied(v),
                 'battleship-square battleship-square-circle'     :  this.prow(v) === 'C',
@@ -375,6 +583,8 @@ export default {
                 'battleship-square battleship-square-right'      :  this.prow(v) === 'R',
                 'battleship-square battleship-square-up'         :  this.prow(v) === 'U',
                 'battleship-square battleship-square-down'       :  this.prow(v) === 'D',
+                'battleship-square battleship-square-hints-add'  : !this.shipped(v) && this.hints.includes(v) && this.solution[v] === 1,
+                'battleship-square battleship-square-hints-rm'   :  this.shipped(v) && this.hints.includes(v) && this.solution[v] === 0,
             }
         },
 
@@ -397,11 +607,14 @@ export default {
             this.shippedPlaces = this.shippedPlaces.filter(i => this.locked(i))
             this.hindex = 0
             this.history = []
+            this.hints = []
             this.stopwatch = 0
+            this.showHelp = false
+            this.showDone = false
         },
 
-        done() {
-            
+        reload() {
+            window.location.reload()
         },
 
         run(msg) {
@@ -415,8 +628,22 @@ export default {
             this.lockedPlaces = new Array(this.boardWidth * this.boardHeight)
             this.lockedPlaces = this.lockedPlaces.fill(0)
 
+            this.solution = [...new Array(this.boardSize)].map((e, i) => {
 
-            console.log(msg)
+                const row = Math.ceil(i / this.boardWidth)
+                const col = Math.ceil(i % this.boardWidth)
+
+                for(const s of msg.solution) {
+
+                    if(row >= (s[0] + 1) && row <= (s[2] + 1) && col >= (s[1] + 1) && col <= (s[3] + 1))
+                        return 1
+
+                }
+
+                return 0
+
+            })
+
 
             msg.data.constraints.cols.forEach((e, i) => this.constraints[(i + 2)] = Number(e))
             msg.data.constraints.rows.forEach((e, i) => this.constraints[(i + 1) * this.boardWidth + 1] = Number(e))
