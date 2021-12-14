@@ -6,9 +6,19 @@
  * @param   {function} onMessage: callback on message
  * @param   {function} onClose: callback on disconnect
  */
-export default (host, port, onInit = undefined, onMessage = undefined, onClose = undefined) => {
+export default (onInit = undefined, onMessage = undefined, onClose = undefined) => {
 
-    const ws = new WebSocket(`${host === 'localhost' ? 'ws' : 'wss'}://${host}:${port}`)
+    let proto = 'ws'
+    let host = 'localhost'
+    let port = 8765
+
+    if (process.env.NODE_ENV === 'production') {
+        proto = 'wss'
+        host = 'https://battleships-ai.herokuapp.com/'
+        port = 443
+    }
+
+    const ws = new WebSocket(`${proto}://${host}:${port}`)
 
     ws.onopen = () => {
 

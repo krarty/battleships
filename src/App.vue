@@ -668,7 +668,7 @@ export default {
 
             this.state = 'loading'
 
-            AI('localhost', 8765,
+            AI (
 
                 (ws) => {
 
