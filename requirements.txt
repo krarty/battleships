@@ -1,0 +1,5 @@
+minizinc==0.5.0
+websockets==10.1
+asyncio==3.4.3
+nest-asyncio==1.5.4
+requests==2.26.0
