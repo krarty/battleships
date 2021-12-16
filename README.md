@@ -2,9 +2,10 @@
 [![Build Status](https://travis-ci.com/krarty/battleships.svg?branch=main)](https://travis-ci.com/krarty/battleships)
 [![License: GPL](https://img.shields.io/badge/License-GPL-blue.svg)](/LICENSE) 
 
+:game_die: **Online preview**: [HERE](https://battleships-puzzle.herokuapp.com/)
+
 Battleship is a strategy type guessing game for single player.  
 
-:game_die: **Online preview**: [HERE](https://battleships-puzzle.herokuapp.com/)
 
 ## :pencil: Description
 The Battleship puzzle (sometimes called Bimaru, Yubotu, Solitaire Battleships or Battleship Solitaire) is a logic puzzle based on the Battleship guessing game. Battleship is played in a grid of squares that hides ships of different sizes. Numbers alongside the grid indicate how many squares in a row or column are occupied by part of a ship.
@@ -48,7 +49,8 @@ Open your web browser on http://localhost:8080 after successful build.
 
 ## :globe_with_meridians: Third-Party Software
 Battleships uses and depends on third-party open-source tools and libraries which are outside of this repository.
-## License
+
+## :page_with_curl: License
 
 Copyright (c) Krarty. All rights reserved.
 
