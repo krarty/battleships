@@ -7,8 +7,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && apt update && apt install -yq  \
 	bash 									\
 	&& curl -FsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - 		\
 	&& apt install -yq nodejs npm 												\
-	&& git clone https://www.github.com/krarty/battleships 						\
 	&& rm -rf /var/lib/apt/lists/*
 
 
-CMD [ "/bin/sh", "-c", "cd battleships && npm install && npm run start" ]
+CMD [ "/bin/sh", "-c", "git clone https://www.github.com/krarty/battleships && cd battleships && npm install && npm run start" ]
