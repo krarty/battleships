@@ -8,15 +8,9 @@
  */
 export default (onInit = undefined, onMessage = undefined, onClose = undefined) => {
 
-    let proto = 'ws'
-    let host = 'localhost'
-    let port = 8765
-
-    if (process.env.NODE_ENV === 'production') {
-        proto = 'wss'
-        host = 'https://battleships-ai.herokuapp.com/'
-        port = 443
-    }
+    const proto = 'ws'
+    const host = 'localhost'
+    const port = 8765
 
     const ws = new WebSocket(`${proto}://${host}:${port}`)
 
