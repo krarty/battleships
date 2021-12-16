@@ -1,5 +1,5 @@
 FROM ubuntu:20.04
-RUN apt update && apt install -y 			\
+RUN export DEBIAN_FRONTEND=noninteractive && apt update && apt install -yq  \
 	nodejs 									\
 	git 									\
 	python3 								\
