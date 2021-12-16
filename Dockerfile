@@ -5,6 +5,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && apt update && apt install -yq  \
 	python3 								\
 	curl 									\
 	bash 									\
+	minizinc								\
 	&& curl -FsSL https://deb.nodesource.com/setup_16.x | sudo -E bash - 		\
 	&& apt install -yq nodejs npm 												\
 	&& rm -rf /var/lib/apt/lists/*
